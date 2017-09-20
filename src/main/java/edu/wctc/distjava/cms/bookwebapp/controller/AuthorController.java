@@ -1,7 +1,10 @@
 package edu.wctc.distjava.cms.bookwebapp.controller;
 
+import edu.wctc.distjava.cms.bookwebapp.model.Author;
+import edu.wctc.distjava.cms.bookwebapp.model.AuthorService;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,6 +18,10 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "AuthorController", urlPatterns = {"/authorController"})
 public class AuthorController extends HttpServlet {
+    
+    public static final String ACTION = "action";
+    public static final String LIST_ACTION = "list";
+    
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -29,8 +36,26 @@ public class AuthorController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         
+        String destination = "/authorList.jsp"; //default
+        AuthorService authorService = new AuthorService();
+        List<Author> authorList = null;
+        
+        try {
+            String action = request.getParameter(ACTION);
+            if(action.equalsIgnoreCase(LIST_ACTION)){
+                authorList = authorService.getAuthorList();
+                request.setAttribute("authorList", authorList);
+            }
+            
+        } catch(Exception e){
+            //destination = "/error.jsp";
+            destination = "/authorList.jsp";
+            request.setAttribute("errorMessage", e.getMessage());
+            
+        }
+        
 
-        RequestDispatcher view = request.getRequestDispatcher("/authorList.jsp");
+        RequestDispatcher view = request.getRequestDispatcher(destination);
         view.forward(request, response);
 
     }
