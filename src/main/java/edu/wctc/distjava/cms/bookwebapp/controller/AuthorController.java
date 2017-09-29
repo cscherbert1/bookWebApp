@@ -1,7 +1,10 @@
 package edu.wctc.distjava.cms.bookwebapp.controller;
 
 import edu.wctc.distjava.cms.bookwebapp.model.Author;
+import edu.wctc.distjava.cms.bookwebapp.model.AuthorDAO;
 import edu.wctc.distjava.cms.bookwebapp.model.AuthorService;
+import edu.wctc.distjava.cms.bookwebapp.model.MySqlDataAccess;
+import edu.wctc.distjava.cms.bookwebapp.model.iAuthorDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -18,10 +21,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "AuthorController", urlPatterns = {"/authorController"})
 public class AuthorController extends HttpServlet {
-    
+
     public static final String ACTION = "action";
     public static final String LIST_ACTION = "list";
-    
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,26 +37,33 @@ public class AuthorController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        
+
         String destination = "/authorList.jsp"; //default
-        AuthorService authorService = new AuthorService();
-        List<Author> authorList = null;
-        
+
         try {
+
+            //hardcoding 
+            iAuthorDAO dao = new AuthorDAO("com.mysql.jdbc.Driver",
+                    "jdbc:mysql://localhost:3306/book",
+                    "root", "admin",
+                    new MySqlDataAccess("com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book",
+                        "root", "admin")
+            );
+
+            AuthorService authorService = new AuthorService(dao);
+            List<Author> authorList = null;
             String action = request.getParameter(ACTION);
-            if(action.equalsIgnoreCase(LIST_ACTION)){
+            if (action.equalsIgnoreCase(LIST_ACTION)) {
                 authorList = authorService.getAuthorList();
                 request.setAttribute("authorList", authorList);
             }
-            
-        } catch(Exception e){
+
+        } catch (Exception e) {
             //destination = "/error.jsp";
             destination = "/authorList.jsp";
             request.setAttribute("errorMessage", e.getMessage());
-            
-            
+
         }
-        
 
         RequestDispatcher view = request.getRequestDispatcher(destination);
         view.forward(request, response);
