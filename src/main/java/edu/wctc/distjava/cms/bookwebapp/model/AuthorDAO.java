@@ -68,6 +68,27 @@ public class AuthorDAO implements iAuthorDAO {
 
         return list;
     }
+    
+    @Override
+    public final void removeAuthors(List<Author> authors)
+     throws SQLException, ClassNotFoundException{
+        
+        if(authors.size() <=0 || authors == null){
+            throw new IllegalArgumentException("One or more authors must be identified for removal.");
+        }
+        
+        String tableName = "author";
+        String colName = "author_id";
+        List<Integer> primaryKeys = new Vector();
+        
+        for(Author author : authors){
+            int id = author.getAuthorId();
+            primaryKeys.add(id);
+        }
+        
+        db.deleteSelectRecords(tableName, colName, primaryKeys);
+        
+    }
 
     public String getDriverClass() {
         return driverClass;
@@ -111,7 +132,12 @@ public class AuthorDAO implements iAuthorDAO {
 
     public static void main(String[] args)
             throws SQLException, ClassNotFoundException {
+        //this list of Author objects is needed to test the remove Authors method.
+        //A list of Authors will be created during the first test
+        List<Author> tempAuthors = new Vector();        
         
+        //Test getListOfAuthors()
+        System.out.println("Test getListOfAuthors:");
         AuthorDAO dao = new AuthorDAO("com.mysql.jdbc.Driver",
                 "jdbc:mysql://localhost:3306/book",
                 "root", "admin",
@@ -124,7 +150,24 @@ public class AuthorDAO implements iAuthorDAO {
         for(Author a: list) {
             System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
                     ", " + a.getDateAdded() + "\n");
+            if(a.getAuthorId() == 6){
+                Author tempAuth = new Author(a.getAuthorId(), a.getAuthorName(), a.getDateAdded());
+                tempAuthors.add(tempAuth);
+            }
         }
+        
+        //test removeAuthors()
+        System.out.println("Test removeAthors:");
+        dao.removeAuthors(tempAuthors);
+        
+        List<Author> removeTestList = dao.getListOfAuthors();
+        
+        for(Author a: removeTestList) {
+            System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
+                    ", " + a.getDateAdded() + "\n");
+        }
+        
+        
 
     }
 }

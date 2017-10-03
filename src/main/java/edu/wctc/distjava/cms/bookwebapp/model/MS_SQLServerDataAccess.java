@@ -105,6 +105,11 @@ public class MS_SQLServerDataAccess implements DataAccess {
     }
     
     @Override
+    public void deleteSelectRecords(String author, String author_id, List<Integer> deletePKs) throws IllegalArgumentException, ClassNotFoundException, SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
     public final String getDriverClass() {
         return driverClass;
     }
@@ -160,4 +165,9 @@ public class MS_SQLServerDataAccess implements DataAccess {
 //            System.out.println(rec);
 //        }
 //    }
+
+
+
+    
+    
 }

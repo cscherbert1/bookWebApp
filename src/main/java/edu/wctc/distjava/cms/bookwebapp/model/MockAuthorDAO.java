@@ -52,4 +52,9 @@ public class MockAuthorDAO implements iAuthorDAO {
         }
 
     }
+
+    @Override
+    public void removeAuthors(List<Author> authors) throws SQLException, ClassNotFoundException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

@@ -9,6 +9,10 @@ import java.util.List;
  */
 public interface iAuthorDAO {
 
-    List<Author> getListOfAuthors() throws SQLException, ClassNotFoundException;
-    
+    public List<Author> getListOfAuthors() 
+            throws SQLException, ClassNotFoundException;
+
+    public void removeAuthors(List<Author> authors)
+            throws SQLException, ClassNotFoundException;
+
 }

@@ -25,7 +25,8 @@ public interface DataAccess {
      * @return rawData
      * @throws SQLException
      */
-    List<Map<String, Object>> getAllRecords(String tableName, int maxRecords) throws SQLException, ClassNotFoundException;
+    List<Map<String, Object>> getAllRecords(String tableName, int maxRecords)
+            throws SQLException, ClassNotFoundException;
 
     String getDriverClass();
 
@@ -46,5 +47,8 @@ public interface DataAccess {
     void setUrl(String url);
 
     void setUserName(String userName);
+
+    public void deleteSelectRecords(String author, String author_id, List<Integer> deletePKs)
+            throws IllegalArgumentException, ClassNotFoundException, SQLException;
     
 }
