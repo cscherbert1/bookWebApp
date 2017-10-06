@@ -28,27 +28,17 @@ public interface DataAccess {
     List<Map<String, Object>> getAllRecords(String tableName, int maxRecords)
             throws SQLException, ClassNotFoundException;
 
-    String getDriverClass();
-
-    String getPassword();
-
-    String getUrl();
-
-    String getUserName();
-
     //get db connection
     //encapsulate complexity of creating url, entering login info, etc
-    void openConnection() throws ClassNotFoundException, SQLException;
+    public abstract void openConnection(String driverClass, String url, String userName,
+            String password)
+            throws ClassNotFoundException, SQLException;
 
-    void setDriverClass(String driverClass);
+    public abstract int deleteRecordById(String tableName, String pkColName, Object pkValue)
+            throws ClassNotFoundException, SQLException;
 
-    void setPassword(String password);
+    public int createRecord(String tableName, List<String> colNames,
+            List<Object> colValues)
+            throws ClassNotFoundException, SQLException;
 
-    void setUrl(String url);
-
-    void setUserName(String userName);
-
-    public void deleteSelectRecords(String author, String author_id, List<Integer> deletePKs)
-            throws IllegalArgumentException, ClassNotFoundException, SQLException;
-    
 }

@@ -32,11 +32,20 @@ public class AuthorService {
 //        );
     }
     
-    public final void removeAuthors(List<Author> authors) 
-            throws SQLException, ClassNotFoundException{
+    //could wrap all 3 exceptions into 1 custom exception as seen in adv. Java
+    public final int removeAuthorById(String id) //the value passed in will come from a web form, which always returns strings, so this should be your input 
+            throws SQLException, ClassNotFoundException, NumberFormatException{
         
-        authorDao.removeAuthors(authors);
+        if(id == null){
+            throw new IllegalArgumentException("Id must be an integer greater than Zero.");
+        }
+        
+        Integer value = Integer.parseInt(id); //throws number format exception
+        
+        return authorDao.removeAuthorById(value);
     }
+    
+    
 
     public iAuthorDAO getAuthorDao() {
         return authorDao;
@@ -58,8 +67,7 @@ public class AuthorService {
         iAuthorDAO dao = new AuthorDAO("com.mysql.jdbc.Driver",
                 "jdbc:mysql://localhost:3306/book",
                 "root", "admin",
-                new MySqlDataAccess("com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book",
-                        "root", "admin")
+                new MySqlDataAccess()
         );
 
         AuthorService authorService = new AuthorService(dao);
@@ -73,19 +81,31 @@ public class AuthorService {
                     + ", " + a.getDateAdded() + "\n");
         }
         
-        //test removeAuthors();
-        System.out.println("Test removeAuthors:");
-        List<Author> delAuths = new Vector();
-        delAuths.add(new Author(6));
-        
-        authorService.removeAuthors(list);
-        
-        List<Author> delAuthsTest = authorService.getAuthorList();
-
-        for (Author a : delAuthsTest) {
+        System.out.println("test removeAuthorById:");
+        int recsDeleted = authorService.removeAuthorById("11");
+        List<Author> singleDelTestList = authorService.getAuthorList();        
+        for (Author a : singleDelTestList) {
             System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
                     + ", " + a.getDateAdded() + "\n");
         }
+        
+        //test removeAuthors();
+//        System.out.println("Test removeAuthors:");
+//        List<Author> delAuths = new Vector();
+//        Author author1 = new Author(1,"Author1", new Date());
+//        Author author2 = new Author(2, "Author2", new Date());
+//        
+//        delAuths.add(author1);
+//        delAuths.add(author2);
+//        
+//        authorService.removeAuthors(delAuths);
+//        
+//        List<Author> delAuthsTest = authorService.getAuthorList();
+//
+//        for (Author a : delAuthsTest) {
+//            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
+//                    + ", " + a.getDateAdded() + "\n");
+//        }
     }
 
 }

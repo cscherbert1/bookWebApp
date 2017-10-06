@@ -46,8 +46,7 @@ public class AuthorController extends HttpServlet {
             iAuthorDAO dao = new AuthorDAO("com.mysql.jdbc.Driver",
                     "jdbc:mysql://localhost:3306/book",
                     "root", "admin",
-                    new MySqlDataAccess("com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book",
-                        "root", "admin")
+                    new MySqlDataAccess()
             );
 
             AuthorService authorService = new AuthorService(dao);

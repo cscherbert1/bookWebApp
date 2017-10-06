@@ -2,14 +2,17 @@ package edu.wctc.distjava.cms.bookwebapp.model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.Vector;
 
 /**
@@ -23,27 +26,13 @@ public class MySqlDataAccess implements DataAccess {
     private Connection conn;
     private Statement stmt;
     private ResultSet rs;
-    private String driverClass;
-    private String url;
-    private String userName;
-    private String password;
-
-    public MySqlDataAccess(String driverClass, String url,
-            String userName, String password) {
-        //validate all of these input parameters for null
-
-//        if(driverClass == null || driverClass.length() < 5){
-//            
-//        }
-        setDriverClass(driverClass);
-        setUrl(url);
-        setUserName(userName);
-        setPassword(password);
-    }
+    private PreparedStatement pstmt;
+    private final boolean DEBUG = true;
 
     //get db connection
     //encapsulate complexity of creating url, entering login info, etc
-    public void openConnection() throws ClassNotFoundException, SQLException {
+    public void openConnection(String driverClass, String url,
+            String userName, String password) throws ClassNotFoundException, SQLException {
 
         //must validate these values being passed in 
         Class.forName(driverClass);
@@ -79,7 +68,7 @@ public class MySqlDataAccess implements DataAccess {
             sql = "select * from " + tableName;
         }
 
-        openConnection();
+
         stmt = conn.createStatement();
         rs = stmt.executeQuery(sql);
 
@@ -96,100 +85,142 @@ public class MySqlDataAccess implements DataAccess {
             }
             rawData.add(record);
         }
-        closeConnection();
+
 
         return rawData;
     }
+    
+    public final int deleteRecordById(String tableName, String pkColName, Object pkValue)
+            throws ClassNotFoundException, SQLException{
+        
+        //validate parameters
+        String sql = "DELETE FROM " + tableName +
+                    " WHERE " + pkColName + " = ?";      
 
-    public final void deleteSelectRecords(String tableName, String colName, List<Integer> primaryKeys)
-            throws IllegalArgumentException, ClassNotFoundException, SQLException {
-
-        if (tableName == null || tableName.isEmpty()) {
-            throw new IllegalArgumentException("You must define a table name from which to delete records.");
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setObject(1, pkValue);      
+        
+        return pstmt.executeUpdate();
+        
+    }
+    
+    public int  createRecord(String tableName, List<String> colNames,
+            List<Object> colValues)
+            throws ClassNotFoundException, SQLException{
+        
+        String sql = "INSERT INTO " + tableName + " ";
+        
+        StringJoiner sj = new StringJoiner(", ", "(", ")");
+        for(String col : colNames){
+            sj.add(col);
         }
-        if (colName == null || colName.isEmpty()) {
-            throw new IllegalArgumentException("You must define a the column from which you would like to delete records.");
+        
+        sql += sj.toString() + " VALUES ";
+        
+        //reset the String Joiner by recalling the constructor
+        sj = new StringJoiner(", ", "(", ")");
+        for(Object value : colValues){
+            sj.add("?");
         }
-        if (primaryKeys.size() <= 0) {
-            throw new IllegalArgumentException("You must provide one or more valid primary keys in order to delete any records.");
+        
+        sql += sj.toString();
+        
+        if(DEBUG){ //turn debug off  (set to false) if going into production
+            System.out.println(sql);
+        }
+        
+        pstmt = conn.prepareStatement(sql);
+        
+        //set values for each ? as objects. conversion happens automatically
+        for (int i=1; i <= colValues.size(); i++){
+            pstmt.setObject(i, colValues.get(i-1));
         }
 
-        openConnection();
-        stmt = conn.createStatement();
-        for (int pk : primaryKeys) {
-
-            String sqlDelete = "delete from " + tableName + " where " + colName + " = " + pk;
-            stmt.executeUpdate(sqlDelete);
-        }
-        closeConnection();       
-
+        return pstmt.executeUpdate();
     }
 
-    public final String getDriverClass() {
-        return driverClass;
+    public Connection getConn() {
+        return conn;
     }
 
-    public final void setDriverClass(String driverClass) {
-        //validate this method
-        this.driverClass = driverClass;
+    public void setConn(Connection conn) {
+        this.conn = conn;
     }
 
-    public final String getUrl() {
-        return url;
+    public Statement getStmt() {
+        return stmt;
     }
 
-    public final void setUrl(String url) {
-        //validate this method
-        this.url = url;
+    public void setStmt(Statement stmt) {
+        this.stmt = stmt;
     }
 
-    public final String getUserName() {
-        return userName;
+    public ResultSet getRs() {
+        return rs;
     }
 
-    public final void setUserName(String userName) {
-        //validate this method
-        this.userName = userName;
+    public void setRs(ResultSet rs) {
+        this.rs = rs;
     }
 
-    public final String getPassword() {
-        return password;
+    public PreparedStatement getPstmt() {
+        return pstmt;
     }
 
-    public final void setPassword(String password) {
-        //validate this method
-        this.password = password;
-    }
+    public void setPstmt(PreparedStatement pstmt) {
+        this.pstmt = pstmt;
+    } 
+    
 
     /*
     MAIN METHOD FOR TESTING
      */
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        DataAccess db = new MySqlDataAccess(
+        DataAccess db = new MySqlDataAccess();
+        
+        db.openConnection(
                 "com.mysql.jdbc.Driver",
                 "jdbc:mysql://localhost:3306/book",
                 "root",
                 "admin"
         );
-
-        //Test for getAllRecords()
-        System.out.println("Test getAllRecords:");
-        List<Map<String, Object>> list = db.getAllRecords("author", 0);
-
-        for (Map<String, Object> rec : list) {
-            System.out.println(rec);
-        }
+        
+        int recsAdded = db.createRecord("author", Arrays.asList("author_name, date_added"), 
+                Arrays.asList("Sally Smith", "2010-02-14"));
+        
+        db.closeConnection();
+        
+        System.out.println("Recs created: " + recsAdded);
+        
+//        db.openConnection(
+//                "com.mysql.jdbc.Driver",
+//                "jdbc:mysql://localhost:3306/book",
+//                "root",
+//                "admin"
+//        );
+//
+//        //Test for getAllRecords()
+//        System.out.println("Test getAllRecords:");
+//        List<Map<String, Object>> list = db.getAllRecords("author", 0);
+//
+//        for (Map<String, Object> rec : list) {
+//            System.out.println(rec);
+//        }
+//        
+//        db.closeConnection();
+        
+//        int recsDelete = db.deleteRecordById("author", "author_id", new Integer(7));
 
         //Test for deleteSelectRecords()
-        System.out.println("Test deleteSelectRecords:");
-        List<Integer> deletePKs = new ArrayList<Integer>();
-        deletePKs.add(4);
-        db.deleteSelectRecords("author", "author_id", deletePKs);
-        
-        List<Map<String, Object>> delCheck = db.getAllRecords("author", 0);
-
-        for (Map<String, Object> rec : delCheck) {
-            System.out.println(rec);
-        }
+//        System.out.println("Test deleteSelectRecords:");
+//        List<Integer> deletePKs = new ArrayList<Integer>();
+//        deletePKs.add(4);
+//        db.deleteSelectRecords("author", "author_id", deletePKs);
+//        
+//        List<Map<String, Object>> delCheck = db.getAllRecords("author", 0);
+//
+//        for (Map<String, Object> rec : delCheck) {
+//            System.out.println(rec);
+//        }
     }
 }

@@ -18,6 +18,8 @@ public class AuthorDAO implements iAuthorDAO {
     private String userName;
     private String password;
     private DataAccess db;
+    private final String AUTHOR_TBL = "author";
+    private final String AUTHOR_PK = "author_id";
 
     public AuthorDAO(String driverClass, String url,
             String userName, String password, DataAccess db) {
@@ -32,6 +34,8 @@ public class AuthorDAO implements iAuthorDAO {
     @Override
     public List<Author> getListOfAuthors()
             throws SQLException, ClassNotFoundException {
+        
+        db.openConnection(driverClass, url, userName, password);
 
         List<Author> list = new Vector<>(); //vector is threadsafe
 
@@ -65,29 +69,32 @@ public class AuthorDAO implements iAuthorDAO {
 //            author.setDateAdded((Date)rec.get("date_added"));
             list.add(author);
         }
-
+        
+        db.closeConnection();
+        
         return list;
     }
     
-    @Override
-    public final void removeAuthors(List<Author> authors)
-     throws SQLException, ClassNotFoundException{
+    public final int removeAuthorById(Integer id)
+        throws SQLException, ClassNotFoundException{
         
-        if(authors.size() <=0 || authors == null){
-            throw new IllegalArgumentException("One or more authors must be identified for removal.");
+        //validation here
+        if(id == null || id < 1){
+            throw new IllegalArgumentException("Id must be an integer greater than Zero.");
         }
         
-        String tableName = "author";
-        String colName = "author_id";
-        List<Integer> primaryKeys = new Vector();
+        db.openConnection(driverClass, url, userName, password);
+        int recsDeleted =  db.deleteRecordById(AUTHOR_TBL, AUTHOR_PK, id);
+        db.closeConnection();
         
-        for(Author author : authors){
-            int id = author.getAuthorId();
-            primaryKeys.add(id);
-        }
+        return recsDeleted;
         
-        db.deleteSelectRecords(tableName, colName, primaryKeys);
         
+    }
+    
+    public int addAuthor(List<String> colNames, List<Object>colValues){
+        
+        return 0;
     }
 
     public String getDriverClass() {
@@ -141,8 +148,7 @@ public class AuthorDAO implements iAuthorDAO {
         AuthorDAO dao = new AuthorDAO("com.mysql.jdbc.Driver",
                 "jdbc:mysql://localhost:3306/book",
                 "root", "admin",
-                new MySqlDataAccess("com.mysql.jdbc.Driver", "jdbc:mysql://localhost:3306/book",
-                        "root", "admin")
+                new MySqlDataAccess()
         );
 
         List<Author> list = dao.getListOfAuthors();
@@ -156,16 +162,26 @@ public class AuthorDAO implements iAuthorDAO {
             }
         }
         
-        //test removeAuthors()
-        System.out.println("Test removeAthors:");
-        dao.removeAuthors(tempAuthors);
-        
+        //single pk del
+        System.out.println("Test removeAuthorById:");
+        int recsDeleted = dao.removeAuthorById(7);
         List<Author> removeTestList = dao.getListOfAuthors();
         
         for(Author a: removeTestList) {
             System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
                     ", " + a.getDateAdded() + "\n");
         }
+        
+//        //test removeAuthors()
+//        System.out.println("Test removeAthors:");
+//        dao.removeAuthors(tempAuthors);
+//        
+//        List<Author> removeTestList = dao.getListOfAuthors();
+//        
+//        for(Author a: removeTestList) {
+//            System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
+//                    ", " + a.getDateAdded() + "\n");
+//        }
         
         
 

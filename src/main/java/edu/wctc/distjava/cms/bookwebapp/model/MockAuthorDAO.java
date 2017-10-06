@@ -30,6 +30,11 @@ public class MockAuthorDAO implements iAuthorDAO {
         return list;
     }
 
+    @Override
+    public int removeAuthorById(Integer id) throws SQLException, ClassNotFoundException {
+        return 1;
+    }
+
     public static void main(String[] args)
             throws SQLException, ClassNotFoundException {
         
@@ -53,8 +58,5 @@ public class MockAuthorDAO implements iAuthorDAO {
 
     }
 
-    @Override
-    public void removeAuthors(List<Author> authors) throws SQLException, ClassNotFoundException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+
 }
