@@ -14,5 +14,11 @@ public interface iAuthorDAO {
     
     public abstract int removeAuthorById(Integer id)
         throws SQLException, ClassNotFoundException;
+    
+    public abstract int addAuthor(List<String> colNames, List<Object>colValues) 
+        throws ClassNotFoundException, SQLException;
+    
+    public abstract int updateAuthorById(List<String> colNames, List<Object> colValues, 
+            int pkValue) throws ClassNotFoundException, SQLException;
 
 }

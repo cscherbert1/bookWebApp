@@ -31,15 +31,24 @@ public class MySqlDataAccess implements DataAccess {
 
     //get db connection
     //encapsulate complexity of creating url, entering login info, etc
-    public void openConnection(String driverClass, String url,
+    public final void openConnection(String driverClass, String url,
             String userName, String password) throws ClassNotFoundException, SQLException {
 
         //must validate these values being passed in 
+        if(driverClass == null || driverClass.length() < 5)
+            throw new IllegalArgumentException("Invalid driverClass provided. Cannot connect to the Database");
+        if(url == null || url.length() < 5)
+            throw new IllegalArgumentException("Invalid URL provided. Cannot connext to the Database");
+        if(userName == null || userName.isEmpty())
+            throw new IllegalArgumentException("Invalid user name provided.");
+        if(password == null || password.isEmpty())
+            throw new IllegalArgumentException("Invalid password provided.");
+        
         Class.forName(driverClass);
         conn = DriverManager.getConnection(url, userName, password);
     }
 
-    public void closeConnection() throws SQLException {
+    public final void closeConnection() throws SQLException {
         if (conn != null) {
             conn.close();
         }
@@ -104,10 +113,13 @@ public class MySqlDataAccess implements DataAccess {
         
     }
     
-    public int  createRecord(String tableName, List<String> colNames,
+    public final int  createRecord(String tableName, List<String> colNames,
             List<Object> colValues)
-            throws ClassNotFoundException, SQLException{
+            throws SQLException{
         
+        //validation goes here:
+        
+        //Logic        
         String sql = "INSERT INTO " + tableName + " ";
         
         StringJoiner sj = new StringJoiner(", ", "(", ")");
@@ -137,6 +149,49 @@ public class MySqlDataAccess implements DataAccess {
         }
 
         return pstmt.executeUpdate();
+    }
+    
+    public final int updateRecordById(String tableName, List<String> colNames,
+            List<Object> colValues, String pkColName, Object pkValue) throws SQLException{
+        
+        //validate here:
+        
+        //logic
+        String sql = "UPDATE " + tableName + " SET ";
+        
+        StringJoiner sj = new StringJoiner(" = ?, ");
+        
+        //adds the ? to the final item in the colNames list
+        for(String col : colNames){
+            sj.add(col);  
+            
+        }
+        
+        sql += sj.toString() +
+            " = ? WHERE " + pkColName + " = ?";
+        
+        if(DEBUG){ //turn debug off  (set to false) if going into production
+            System.out.println(sql);
+        }
+        
+        pstmt = conn.prepareStatement(sql);
+        
+        //set values for each ? as objects. conversion happens automatically
+        for (int i=1; i <= colValues.size(); i++){
+            pstmt.setObject(i, colValues.get(i-1));
+            
+            if (i == colValues.size()){
+                pstmt.setObject((i+1), pkValue);
+            }                
+        }
+
+        return pstmt.executeUpdate();
+        
+//        UPDATE tableName
+//        SET colName0 = ?, colName1= ?, ...'
+//        WHERE pkColName = ?;   
+
+//        UPDATE author SET author_name, date_added = ?WHERE author_id = ?
     }
 
     public Connection getConn() {
@@ -185,12 +240,23 @@ public class MySqlDataAccess implements DataAccess {
                 "admin"
         );
         
-        int recsAdded = db.createRecord("author", Arrays.asList("author_name, date_added"), 
-                Arrays.asList("Sally Smith", "2010-02-14"));
+//        int recsAdded = db.createRecord("author", Arrays.asList("author_name, date_added"), 
+//                Arrays.asList("Sally Smith", "2010-02-14"));
+
+        int recsUpdated = db.updateRecordById("author", Arrays.asList("author_name", "date_added"), 
+                Arrays.asList("Sally Smith", "2010-02-14"), "author_id", 10);
+
+        System.out.println("Recs Updated: " + recsUpdated);
+        
+        List<Map<String, Object>> list = db.getAllRecords("author", 0);
+
+        for (Map<String, Object> rec : list) {
+            System.out.println(rec);
+        }
         
         db.closeConnection();
         
-        System.out.println("Recs created: " + recsAdded);
+//        System.out.println("Recs created: " + recsAdded);
         
 //        db.openConnection(
 //                "com.mysql.jdbc.Driver",

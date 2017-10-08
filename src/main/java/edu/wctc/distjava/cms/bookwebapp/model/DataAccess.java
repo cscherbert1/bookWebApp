@@ -37,8 +37,12 @@ public interface DataAccess {
     public abstract int deleteRecordById(String tableName, String pkColName, Object pkValue)
             throws ClassNotFoundException, SQLException;
 
-    public int createRecord(String tableName, List<String> colNames,
+    public abstract int createRecord(String tableName, List<String> colNames,
             List<Object> colValues)
-            throws ClassNotFoundException, SQLException;
+            throws SQLException;
+    
+    public abstract int updateRecordById(String tableName, List<String> colNames,
+            List<Object> colValues, String pkColName, Object pkValue)
+            throws SQLException;
 
 }

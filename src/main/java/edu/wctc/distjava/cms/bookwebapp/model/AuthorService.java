@@ -36,7 +36,7 @@ public class AuthorService {
     public final int removeAuthorById(String id) //the value passed in will come from a web form, which always returns strings, so this should be your input 
             throws SQLException, ClassNotFoundException, NumberFormatException{
         
-        if(id == null){
+        if(id == null || Integer.parseInt(id) <= 0){
             throw new IllegalArgumentException("Id must be an integer greater than Zero.");
         }
         
@@ -45,6 +45,36 @@ public class AuthorService {
         return authorDao.removeAuthorById(value);
     }
     
+    public final int addAuthor(List<String> colNames, List<Object>colValues)
+            throws ClassNotFoundException, SQLException{
+        
+        //validation
+        if(colNames == null)
+            throw new IllegalArgumentException("You must provide valid column names to be updated.");
+        if(colValues == null)
+            throw new IllegalArgumentException("You mucst provide appropriate values for each colum to be updated.");
+        
+        //logic
+        return authorDao.addAuthor(colNames, colValues);
+        
+    }
+    
+    public final int updateAuthor(List<String> colNames, List<Object> colValues, 
+            int pkValue) throws ClassNotFoundException, SQLException{
+        
+        //validation
+        if (colNames == null) {
+            throw new IllegalArgumentException("You must provide valid column names to be updated.");
+        }
+        if (colValues == null) {
+            throw new IllegalArgumentException("You must provide appropriate values for each colum to be updated.");
+        }
+        if (pkValue <= 0 || pkValue > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("You must provide a valid Author Id to update any records.");
+        
+        //logic
+        return authorDao.updateAuthorById(colNames, colValues, pkValue);
+    }
     
 
     public iAuthorDAO getAuthorDao() {
@@ -81,31 +111,40 @@ public class AuthorService {
                     + ", " + a.getDateAdded() + "\n");
         }
         
-        System.out.println("test removeAuthorById:");
-        int recsDeleted = authorService.removeAuthorById("11");
-        List<Author> singleDelTestList = authorService.getAuthorList();        
-        for (Author a : singleDelTestList) {
+        //test updateAuthorById
+        System.out.println("Test updateAuthorById: ");
+        int recsUpdated = authorService.updateAuthor(Arrays.asList("author_name", "date_added"), Arrays.asList("Gus Ramirez", "2017-10-07"), 10);
+        System.out.println("Records Updated: " + recsUpdated);
+        
+        List<Author> updateAuthorTestList = authorService.getAuthorList();
+
+        for (Author a : updateAuthorTestList) {
             System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
                     + ", " + a.getDateAdded() + "\n");
         }
         
-        //test removeAuthors();
-//        System.out.println("Test removeAuthors:");
-//        List<Author> delAuths = new Vector();
-//        Author author1 = new Author(1,"Author1", new Date());
-//        Author author2 = new Author(2, "Author2", new Date());
+        //test addAuthor
+//        System.out.println("Test addAuthor:");
+//        int recsAdded = authorService.addAuthor(Arrays.asList("author_name, date_added"), Arrays.asList("Agatha Christie", "2017-10-08"));
+//        System.out.println("Added Records: " + recsAdded);
 //        
-//        delAuths.add(author1);
-//        delAuths.add(author2);
-//        
-//        authorService.removeAuthors(delAuths);
-//        
-//        List<Author> delAuthsTest = authorService.getAuthorList();
+//        List<Author> addAuthorTestList = authorService.getAuthorList();
 //
-//        for (Author a : delAuthsTest) {
+//        for (Author a : addAuthorTestList) {
 //            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
 //                    + ", " + a.getDateAdded() + "\n");
 //        }
+        
+        //test removeAuthorById();
+//        System.out.println("test removeAuthorById:");
+//        int recsDeleted = authorService.removeAuthorById("11");
+//        System.out.println(recsDeleted);
+//        List<Author> singleDelTestList = authorService.getAuthorList();        
+//        for (Author a : singleDelTestList) {
+//            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
+//                    + ", " + a.getDateAdded() + "\n");
+//        }
+        
     }
 
 }

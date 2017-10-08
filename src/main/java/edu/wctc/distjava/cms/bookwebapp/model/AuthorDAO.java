@@ -1,6 +1,7 @@
 package edu.wctc.distjava.cms.bookwebapp.model;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class AuthorDAO implements iAuthorDAO {
     @Override
     public List<Author> getListOfAuthors()
             throws SQLException, ClassNotFoundException {
-        
+
         db.openConnection(driverClass, url, userName, password);
 
         List<Author> list = new Vector<>(); //vector is threadsafe
@@ -69,32 +70,74 @@ public class AuthorDAO implements iAuthorDAO {
 //            author.setDateAdded((Date)rec.get("date_added"));
             list.add(author);
         }
-        
+
         db.closeConnection();
-        
+
         return list;
     }
-    
+
     public final int removeAuthorById(Integer id)
-        throws SQLException, ClassNotFoundException{
-        
+            throws SQLException, ClassNotFoundException {
+
         //validation here
-        if(id == null || id < 1){
+        if (id == null || id < 1) {
             throw new IllegalArgumentException("Id must be an integer greater than Zero.");
         }
+
+        db.openConnection(driverClass, url, userName, password);
+        int recsDeleted = db.deleteRecordById(AUTHOR_TBL, AUTHOR_PK, id);
+        db.closeConnection();
+
+        return recsDeleted;
+
+    }
+
+    public final int addAuthor(List<String> colNames, List<Object> colValues)
+            throws ClassNotFoundException, SQLException {
+
+        //validation
+        if (colNames == null) {
+            throw new IllegalArgumentException("You must provide valid column names to be updated.");
+        }
+        if (colValues == null) {
+            throw new IllegalArgumentException("You mucst provide appropriate values for each colum to be updated.");
+        }
+        
+        //logic
+        String tableName = "author";
+
+        db.openConnection(driverClass, url, userName, password);
+        int recsAdded = db.createRecord(tableName, colNames, colValues);
+        db.closeConnection();
+
+        return recsAdded;
+    }
+
+    public final int updateAuthorById(List<String> colNames, List<Object> colValues, 
+            int pkValue) throws ClassNotFoundException, SQLException {
+        
+        //validate here:
+        if (colNames == null) {
+            throw new IllegalArgumentException("You must provide valid column names to be updated.");
+        }
+        if (colValues == null) {
+            throw new IllegalArgumentException("You must provide appropriate values for each colum to be updated.");
+        }
+        if (pkValue <= 0 || pkValue > Integer.MAX_VALUE)
+            throw new IllegalArgumentException("You must provide a valid Author Id to update any records.");
+        
+        //logic
+        String tableName = "author";
+        String pkColName = "author_id";
         
         db.openConnection(driverClass, url, userName, password);
-        int recsDeleted =  db.deleteRecordById(AUTHOR_TBL, AUTHOR_PK, id);
+        int recsUpdated = db.updateRecordById(tableName, colNames, colValues, pkColName, pkValue);
         db.closeConnection();
         
-        return recsDeleted;
+        return recsUpdated;
         
-        
-    }
-    
-    public int addAuthor(List<String> colNames, List<Object>colValues){
-        
-        return 0;
+        //    int recsUpdated = db.updateRecordById("author", Arrays.asList("author_name", "date_added"), 
+        //      Arrays.asList("Sally Smith", "2010-02-14"), "author_id", 10);
     }
 
     public String getDriverClass() {
@@ -141,8 +184,8 @@ public class AuthorDAO implements iAuthorDAO {
             throws SQLException, ClassNotFoundException {
         //this list of Author objects is needed to test the remove Authors method.
         //A list of Authors will be created during the first test
-        List<Author> tempAuthors = new Vector();        
-        
+        List<Author> tempAuthors = new Vector();
+
         //Test getListOfAuthors()
         System.out.println("Test getListOfAuthors:");
         AuthorDAO dao = new AuthorDAO("com.mysql.jdbc.Driver",
@@ -152,26 +195,55 @@ public class AuthorDAO implements iAuthorDAO {
         );
 
         List<Author> list = dao.getListOfAuthors();
-        
-        for(Author a: list) {
-            System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
-                    ", " + a.getDateAdded() + "\n");
-            if(a.getAuthorId() == 6){
+
+        for (Author a : list) {
+            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
+                    + ", " + a.getDateAdded() + "\n");
+            if (a.getAuthorId() == 6) {
                 Author tempAuth = new Author(a.getAuthorId(), a.getAuthorName(), a.getDateAdded());
                 tempAuthors.add(tempAuth);
             }
         }
         
-        //single pk del
-        System.out.println("Test removeAuthorById:");
-        int recsDeleted = dao.removeAuthorById(7);
-        List<Author> removeTestList = dao.getListOfAuthors();
+        //updated author test
+        System.out.println("Test updateAuthor: ");
         
-        for(Author a: removeTestList) {
-            System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
-                    ", " + a.getDateAdded() + "\n");
+        int recsUpdated = dao.updateAuthorById(Arrays.asList("author_name", "date_added"), Arrays.asList("John Deer", "2010-02-28"), 10);
+        System.out.println("Records Updated: " + recsUpdated);
+        
+        List<Author> updateAuthTestList = dao.getListOfAuthors();
+
+        for (Author a : updateAuthTestList) {
+            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
+                    + ", " + a.getDateAdded() + "\n");
         }
         
+
+                //    int recsUpdated = db.updateRecordById("author", Arrays.asList("author_name", "date_added"), 
+        //      Arrays.asList("Sally Smith", "2010-02-14"), "author_id", 10);        
+                
+                
+        //add author test
+//        System.out.println("Test addAuthor:");
+//
+//        int recsAdded = dao.addAuthor(Arrays.asList("author_name, date_added"), Arrays.asList("George Lucas", "1977-05-25"));
+//
+//        List<Author> addAuthTestList = dao.getListOfAuthors();
+//
+//        for (Author a : addAuthTestList) {
+//            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
+//                    + ", " + a.getDateAdded() + "\n");
+//        }
+
+        //single pk del
+//        System.out.println("Test removeAuthorById:");
+//        int recsDeleted = dao.removeAuthorById(7);
+//        List<Author> removeTestList = dao.getListOfAuthors();
+//        
+//        for(Author a: removeTestList) {
+//            System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
+//                    ", " + a.getDateAdded() + "\n");
+//        }
 //        //test removeAuthors()
 //        System.out.println("Test removeAthors:");
 //        dao.removeAuthors(tempAuthors);
@@ -182,8 +254,5 @@ public class AuthorDAO implements iAuthorDAO {
 //            System.out.println(a.getAuthorId() + ", " + a.getAuthorName() + 
 //                    ", " + a.getDateAdded() + "\n");
 //        }
-        
-        
-
     }
 }

@@ -31,10 +31,18 @@ public class MockAuthorDAO implements iAuthorDAO {
     }
 
     @Override
-    public int removeAuthorById(Integer id) throws SQLException, ClassNotFoundException {
+    public int removeAuthorById(Integer id) 
+            throws SQLException, ClassNotFoundException {
         return 1;
     }
-
+    
+    @Override
+    public int addAuthor(List<String> colNames, List<Object> colValues) 
+            throws ClassNotFoundException, SQLException {
+        
+        return 1;
+    }
+    
     public static void main(String[] args)
             throws SQLException, ClassNotFoundException {
         
@@ -47,7 +55,7 @@ public class MockAuthorDAO implements iAuthorDAO {
 
 //      ****** OR ************
 
-        iAuthorDAO dao =new MockAuthorDAO();
+        iAuthorDAO dao = new MockAuthorDAO();
 
         List<Author> list = dao.getListOfAuthors();
         
@@ -57,6 +65,13 @@ public class MockAuthorDAO implements iAuthorDAO {
         }
 
     }
+
+    @Override
+    public int updateAuthorById(List<String> colNames, List<Object> colValues, int pkValue) throws ClassNotFoundException, SQLException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
 
 
 }
