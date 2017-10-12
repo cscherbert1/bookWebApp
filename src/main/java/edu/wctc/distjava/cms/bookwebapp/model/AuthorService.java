@@ -23,13 +23,18 @@ public class AuthorService {
             throws SQLException, ClassNotFoundException {
 
         return authorDao.getListOfAuthors();
-
-        //this is "faked"/ hard coded data. In future, this method will get author values from DB
-//        return Arrays.asList(
-//                new Author(1,"Mark Twain", new Date()),
-//                new Author(2,"Stephen King", new Date()),
-//                new Author(3,"JK Rowling", new Date())
-//        );
+    }
+    
+    public final Author findOneAuthorById(Object authorId) 
+            throws SQLException, ClassNotFoundException{
+        //validation
+        if (authorId == null){
+            throw new IllegalArgumentException("You must provide a valid author Id");
+        }
+        
+        //logic
+        return authorDao.findOneAuthorById(authorId);
+        
     }
     
     //could wrap all 3 exceptions into 1 custom exception as seen in adv. Java
@@ -48,11 +53,11 @@ public class AuthorService {
     public final int addAuthor(List<String> colNames, List<Object>colValues)
             throws ClassNotFoundException, SQLException{
         
-        //validation
+        //validation --> Dont need to do validation. The things that goe wrong will all be caught by exceptions, so by the time my code catches things, it will already be thrown
         if(colNames == null)
             throw new IllegalArgumentException("You must provide valid column names to be updated.");
         if(colValues == null)
-            throw new IllegalArgumentException("You mucst provide appropriate values for each colum to be updated.");
+            throw new IllegalArgumentException("You must provide appropriate values for each colum to be updated.");
         
         //logic
         return authorDao.addAuthor(colNames, colValues);
@@ -111,17 +116,24 @@ public class AuthorService {
                     + ", " + a.getDateAdded() + "\n");
         }
         
-        //test updateAuthorById
-        System.out.println("Test updateAuthorById: ");
-        int recsUpdated = authorService.updateAuthor(Arrays.asList("author_name", "date_added"), Arrays.asList("Gus Ramirez", "2017-10-07"), 10);
-        System.out.println("Records Updated: " + recsUpdated);
-        
-        List<Author> updateAuthorTestList = authorService.getAuthorList();
+        //test findOneAuthorById()
+        System.out.println("Test findOneAuthorById: ");
+        Author author = authorService.findOneAuthorById(7);
+        System.out.println(author.getAuthorId() + ", " + author.getAuthorName()
+                + ", " + author.getDateAdded() + "\n");
 
-        for (Author a : updateAuthorTestList) {
-            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
-                    + ", " + a.getDateAdded() + "\n");
-        }
+        
+        //test updateAuthorById
+//        System.out.println("Test updateAuthorById: ");
+//        int recsUpdated = authorService.updateAuthor(Arrays.asList("author_name", "date_added"), Arrays.asList("Gus Ramirez", "2017-10-07"), 10);
+//        System.out.println("Records Updated: " + recsUpdated);
+//        
+//        List<Author> updateAuthorTestList = authorService.getAuthorList();
+//
+//        for (Author a : updateAuthorTestList) {
+//            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
+//                    + ", " + a.getDateAdded() + "\n");
+//        }
         
         //test addAuthor
 //        System.out.println("Test addAuthor:");

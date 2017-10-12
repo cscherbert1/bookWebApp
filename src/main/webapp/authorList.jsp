@@ -17,17 +17,20 @@
 
     </head>
     <body>
-        <h1>Author List</h1>
-        
+        <h1>Author List</h1>       
+
         <table border="1">
             <c:forEach var="a" items="${authorList}">
-                <tr>
-                    <td>${a.authorId}</td>
-                    <td>${a.authorName}</td>
+                <tr>                    
+                    <td>${a.authorName}</a></td>
                     <td><fmt:formatDate pattern = "yyyy-MM-dd" value = "${a.dateAdded}" /></td>
+                    <td><input type="button" class="btn btn-primary" value="Edit" onclick="location.href='authorController?action=edit&id=${a.authorId}'"</td>
+                    <td><input type="button" class="btn btn-danger" value="Delete" onclick="location.href='authorController?action=delete&id=${a.authorId}'"</td>
                 </tr>                
             </c:forEach>
         </table>
+        <br>
+        <input type="button" class="btn btn-primary" value="Add" onclick="location.href='authorController?action=add'">
         
 
     </body>

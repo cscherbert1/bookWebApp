@@ -21,6 +21,8 @@ public class AuthorDAO implements iAuthorDAO {
     private DataAccess db;
     private final String AUTHOR_TBL = "author";
     private final String AUTHOR_PK = "author_id";
+    private final String AUTHOR_NAME = "author_name";
+    private final String DATE_ADDED = "date_added";
 
     public AuthorDAO(String driverClass, String url,
             String userName, String password, DataAccess db) {
@@ -75,6 +77,43 @@ public class AuthorDAO implements iAuthorDAO {
 
         return list;
     }
+    
+    public final Author findOneAuthorById(Object authorId) 
+            throws SQLException, ClassNotFoundException{
+        //validation
+        if(authorId == null){
+            throw new IllegalArgumentException("You must provide a valid author Id");
+        }
+        
+        //logic
+        db.openConnection(driverClass, url, userName, password);
+        
+        List<Map<String, Object>> rawData = db.findRecordById(AUTHOR_TBL, AUTHOR_PK, authorId);
+
+        Author author = null;
+        for (Map<String, Object> rec : rawData) {
+            author = new Author();
+
+            //data validation
+            Object objRecId = rec.get("author_id");
+            Integer recId = objRecId == null
+                    ? 0 : Integer.parseInt(objRecId.toString());
+
+            //set "into" the Author obj
+            author.setAuthorId(recId);
+
+            Object objName = rec.get("author_name");
+            String authorName = objName == null ? "" : objName.toString();
+            author.setAuthorName(authorName);
+
+            Object objRecAdded = rec.get("date_added");
+            Date recAdded = objRecAdded == null ? null : (Date) objRecAdded;
+            author.setDateAdded(recAdded);
+        }
+        db.closeConnection();
+        return author;
+        
+    }
 
     public final int removeAuthorById(Integer id)
             throws SQLException, ClassNotFoundException {
@@ -105,7 +144,7 @@ public class AuthorDAO implements iAuthorDAO {
         
         //logic
         String tableName = "author";
-
+        
         db.openConnection(driverClass, url, userName, password);
         int recsAdded = db.createRecord(tableName, colNames, colValues);
         db.closeConnection();
@@ -205,18 +244,23 @@ public class AuthorDAO implements iAuthorDAO {
             }
         }
         
+        System.out.println("Test getOneAuthorById: ");
+        Author oneAuthor = dao.findOneAuthorById(7);
+        System.out.println(oneAuthor.getAuthorId() + ", " + oneAuthor.getAuthorName()
+                    + ", " + oneAuthor.getDateAdded() + "\n");
+        
         //updated author test
-        System.out.println("Test updateAuthor: ");
-        
-        int recsUpdated = dao.updateAuthorById(Arrays.asList("author_name", "date_added"), Arrays.asList("John Deer", "2010-02-28"), 10);
-        System.out.println("Records Updated: " + recsUpdated);
-        
-        List<Author> updateAuthTestList = dao.getListOfAuthors();
-
-        for (Author a : updateAuthTestList) {
-            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
-                    + ", " + a.getDateAdded() + "\n");
-        }
+//        System.out.println("Test updateAuthor: ");
+//        
+//        int recsUpdated = dao.updateAuthorById(Arrays.asList("author_name", "date_added"), Arrays.asList("John Deer", "2010-02-28"), 10);
+//        System.out.println("Records Updated: " + recsUpdated);
+//        
+//        List<Author> updateAuthTestList = dao.getListOfAuthors();
+//
+//        for (Author a : updateAuthTestList) {
+//            System.out.println(a.getAuthorId() + ", " + a.getAuthorName()
+//                    + ", " + a.getDateAdded() + "\n");
+//        }
         
 
                 //    int recsUpdated = db.updateRecordById("author", Arrays.asList("author_name", "date_added"), 

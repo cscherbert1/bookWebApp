@@ -12,6 +12,9 @@ public interface iAuthorDAO {
     public abstract List<Author> getListOfAuthors() 
             throws SQLException, ClassNotFoundException;
     
+    public abstract Author findOneAuthorById(Object authorId) 
+            throws SQLException, ClassNotFoundException;
+    
     public abstract int removeAuthorById(Integer id)
         throws SQLException, ClassNotFoundException;
     

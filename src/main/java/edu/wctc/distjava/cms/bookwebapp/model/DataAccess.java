@@ -25,8 +25,12 @@ public interface DataAccess {
      * @return rawData
      * @throws SQLException
      */
-    List<Map<String, Object>> getAllRecords(String tableName, int maxRecords)
+    public abstract List<Map<String, Object>> getAllRecords(String tableName, int maxRecords)
             throws SQLException, ClassNotFoundException;
+    
+    public abstract List<Map<String, Object>> findRecordById(String tableName, 
+            String pkColName, Object pkValue)
+            throws SQLException;
 
     //get db connection
     //encapsulate complexity of creating url, entering login info, etc
