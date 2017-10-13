@@ -7,6 +7,7 @@ import edu.wctc.distjava.cms.bookwebapp.model.MySqlDataAccess;
 import edu.wctc.distjava.cms.bookwebapp.model.iAuthorDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
@@ -34,6 +35,11 @@ public class AuthorController extends HttpServlet {
     public static final String EDIT_AUTHOR_ACTION = "editauthor";
     public static final String AUTHOR_NAME = "author_name";
     public static final String DATE_ADDED = "date_added";
+    
+    public static final String DESTINATION_AUTHORLIST = "/authorList.jsp";
+    public static final String DESTINATION_ADD_AUTHOR = "/addAuthor.jsp"; 
+    public static final String DESTINATION_EDIT_AUTHOR = "/editAuthor.jsp"; 
+    public static final String DESTINATION_ERROR = "/error.jsp";
 
 
     /**
@@ -49,7 +55,7 @@ public class AuthorController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
 
-        String destination = "/authorList.jsp"; //default
+        String destination = DESTINATION_AUTHORLIST; //default
 
         try {
 
@@ -66,8 +72,7 @@ public class AuthorController extends HttpServlet {
             
             if (action.equalsIgnoreCase(LIST_ACTION)) {
                 
-                authorList = authorService.getAuthorList();
-                request.setAttribute("authorList", authorList);
+                getAuthorList(authorList,authorService, request); 
                 
             } else if (action.equalsIgnoreCase(DELETE_ACTION)){
                 
@@ -75,11 +80,10 @@ public class AuthorController extends HttpServlet {
                 authorService.removeAuthorById(authorId);
                 
                 //get the changed list
-                authorList = authorService.getAuthorList();
-                request.setAttribute("authorList", authorList);
+                getAuthorList(authorList,authorService, request); 
                 
             } else if (action.equalsIgnoreCase(ADD_ACTION)){
-                destination = "/addAuthor.jsp";              
+                destination = DESTINATION_ADD_AUTHOR;              
                 
             } else if (action.equalsIgnoreCase(SUBMIT_AUTHOR_ACTION)){
                 
@@ -93,16 +97,15 @@ public class AuthorController extends HttpServlet {
                 
                 authorService.addAuthor(colNames, colValues);
                 
-                destination = "/authorList.jsp"; 
+                destination = DESTINATION_AUTHORLIST; 
                 
-                authorList = authorService.getAuthorList();
-                request.setAttribute("authorList", authorList);                
+                getAuthorList(authorList,authorService, request);                 
                 
             } else if (action.equalsIgnoreCase(EDIT_ACTION)){
                                                
                 String authorId = request.getParameter(AUTHOR_ID);
                 
-                destination = "/editAuthor.jsp";
+                destination = DESTINATION_EDIT_AUTHOR;
                 
                 Author eAuthor = authorService.findOneAuthorById(authorId);
                 request.setAttribute("eAuthor", eAuthor);
@@ -121,15 +124,14 @@ public class AuthorController extends HttpServlet {
                 
                 authorService.updateAuthor(colNames, colValues, authorId);
                 
-                destination = "/authorList.jsp"; 
+                destination = DESTINATION_AUTHORLIST; 
                 
-                authorList = authorService.getAuthorList();
-                request.setAttribute("authorList", authorList);  
+                getAuthorList(authorList,authorService, request); 
             }
 
         } catch (Exception e) {
-            //destination = "/error.jsp";
-            destination = "/authorList.jsp";
+            destination = DESTINATION_ERROR;
+//            destination = "/authorList.jsp";
             request.setAttribute("errorMessage", e.getMessage());
 
         }
@@ -137,6 +139,14 @@ public class AuthorController extends HttpServlet {
         RequestDispatcher view = request.getRequestDispatcher(destination);
         view.forward(request, response);
 
+    }
+    
+    private void getAuthorList(List<Author> authorList,
+            AuthorService authorService, HttpServletRequest request)
+            throws SQLException, ClassNotFoundException{
+        
+        authorList = authorService.getAuthorList();
+        request.setAttribute("authorList", authorList);  
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

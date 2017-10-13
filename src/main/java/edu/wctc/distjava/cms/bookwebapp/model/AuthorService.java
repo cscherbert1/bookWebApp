@@ -53,7 +53,7 @@ public class AuthorService {
     public final int addAuthor(List<String> colNames, List<Object>colValues)
             throws ClassNotFoundException, SQLException{
         
-        //validation --> Dont need to do validation. The things that goe wrong will all be caught by exceptions, so by the time my code catches things, it will already be thrown
+        //validation
         if(colNames == null)
             throw new IllegalArgumentException("You must provide valid column names to be updated.");
         if(colValues == null)
