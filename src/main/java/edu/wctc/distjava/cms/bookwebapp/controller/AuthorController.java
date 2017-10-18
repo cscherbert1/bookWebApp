@@ -40,6 +40,7 @@ public class AuthorController extends HttpServlet {
     public static final String DESTINATION_ADD_AUTHOR = "/addAuthor.jsp";
     public static final String DESTINATION_EDIT_AUTHOR = "/editAuthor.jsp";
     public static final String DESTINATION_ERROR = "/error.jsp";
+    public static final String DESTINATION_HOME = "/index.jsp";
 
     private String driverClass;
     private String url;
@@ -72,6 +73,10 @@ public class AuthorController extends HttpServlet {
             List<Author> authorList = null;
             String action = request.getParameter(ACTION);
 
+            if(action.equalsIgnoreCase(DESTINATION_HOME)){
+                
+                destination = DESTINATION_HOME;
+            }
             if (action.equalsIgnoreCase(LIST_ACTION)) {
 
                 getAuthorList(authorList, authorService, request);

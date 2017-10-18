@@ -17,6 +17,9 @@
         <title>Book Web Application</title>
     </head>
     <body>
+        
+        <jsp:include page="header.jsp" />
+        
         <div class="conatiner-fluid">
             <div class="row">
                 <div class="col-sm-2"></div>
