@@ -30,17 +30,21 @@ public class AuthorController extends HttpServlet {
     public static final String LIST_ACTION = "list";
     public static final String ADD_ACTION = "add";
     public static final String DELETE_ACTION = "delete";
-    public static final String EDIT_ACTION = "edit";  
+    public static final String EDIT_ACTION = "edit";
     public static final String SUBMIT_AUTHOR_ACTION = "submitauthor";
     public static final String EDIT_AUTHOR_ACTION = "editauthor";
     public static final String AUTHOR_NAME = "author_name";
     public static final String DATE_ADDED = "date_added";
-    
+
     public static final String DESTINATION_AUTHORLIST = "/authorList.jsp";
-    public static final String DESTINATION_ADD_AUTHOR = "/addAuthor.jsp"; 
-    public static final String DESTINATION_EDIT_AUTHOR = "/editAuthor.jsp"; 
+    public static final String DESTINATION_ADD_AUTHOR = "/addAuthor.jsp";
+    public static final String DESTINATION_EDIT_AUTHOR = "/editAuthor.jsp";
     public static final String DESTINATION_ERROR = "/error.jsp";
 
+    private String driverClass;
+    private String url;
+    private String username;
+    private String password;
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -60,73 +64,71 @@ public class AuthorController extends HttpServlet {
         try {
 
             //hardcoding 
-            iAuthorDAO dao = new AuthorDAO("com.mysql.jdbc.Driver",
-                    "jdbc:mysql://localhost:3306/book",
-                    "root", "admin",
-                    new MySqlDataAccess()
+            iAuthorDAO dao = new AuthorDAO(driverClass, url,
+                    username, password, new MySqlDataAccess()
             );
 
             AuthorService authorService = new AuthorService(dao);
             List<Author> authorList = null;
             String action = request.getParameter(ACTION);
-            
+
             if (action.equalsIgnoreCase(LIST_ACTION)) {
-                
-                getAuthorList(authorList,authorService, request); 
-                
-            } else if (action.equalsIgnoreCase(DELETE_ACTION)){
-                
+
+                getAuthorList(authorList, authorService, request);
+
+            } else if (action.equalsIgnoreCase(DELETE_ACTION)) {
+
                 String authorId = request.getParameter(AUTHOR_ID);
                 authorService.removeAuthorById(authorId);
-                
+
                 //get the changed list
-                getAuthorList(authorList,authorService, request); 
-                
-            } else if (action.equalsIgnoreCase(ADD_ACTION)){
-                destination = DESTINATION_ADD_AUTHOR;              
-                
-            } else if (action.equalsIgnoreCase(SUBMIT_AUTHOR_ACTION)){
-                
-                List<String> colNames = new Vector();
-                colNames.add(AUTHOR_NAME);
-                colNames.add(DATE_ADDED);
-                
-                List<Object> colValues = new Vector();
-                colValues.add(request.getParameter(AUTHOR_NAME));
-                colValues.add(new Date());
-                
-                authorService.addAuthor(colNames, colValues);
-                
-                destination = DESTINATION_AUTHORLIST; 
-                
-                getAuthorList(authorList,authorService, request);                 
-                
-            } else if (action.equalsIgnoreCase(EDIT_ACTION)){
-                                               
-                String authorId = request.getParameter(AUTHOR_ID);
-                
-                destination = DESTINATION_EDIT_AUTHOR;
-                
-                Author eAuthor = authorService.findOneAuthorById(authorId);
-                request.setAttribute("eAuthor", eAuthor);
-                
-            } else if (action.equalsIgnoreCase(EDIT_AUTHOR_ACTION)){              
+                getAuthorList(authorList, authorService, request);
+
+            } else if (action.equalsIgnoreCase(ADD_ACTION)) {
+                destination = DESTINATION_ADD_AUTHOR;
+
+            } else if (action.equalsIgnoreCase(SUBMIT_AUTHOR_ACTION)) {
 
                 List<String> colNames = new Vector();
                 colNames.add(AUTHOR_NAME);
                 colNames.add(DATE_ADDED);
-                
+
                 List<Object> colValues = new Vector();
                 colValues.add(request.getParameter(AUTHOR_NAME));
                 colValues.add(new Date());
-                
-                int authorId = Integer.parseInt(request.getParameter("author_id"));  
-                
+
+                authorService.addAuthor(colNames, colValues);
+
+                destination = DESTINATION_AUTHORLIST;
+
+                getAuthorList(authorList, authorService, request);
+
+            } else if (action.equalsIgnoreCase(EDIT_ACTION)) {
+
+                String authorId = request.getParameter(AUTHOR_ID);
+
+                destination = DESTINATION_EDIT_AUTHOR;
+
+                Author eAuthor = authorService.findOneAuthorById(authorId);
+                request.setAttribute("eAuthor", eAuthor);
+
+            } else if (action.equalsIgnoreCase(EDIT_AUTHOR_ACTION)) {
+
+                List<String> colNames = new Vector();
+                colNames.add(AUTHOR_NAME);
+                colNames.add(DATE_ADDED);
+
+                List<Object> colValues = new Vector();
+                colValues.add(request.getParameter(AUTHOR_NAME));
+                colValues.add(new Date());
+
+                int authorId = Integer.parseInt(request.getParameter("author_id"));
+
                 authorService.updateAuthor(colNames, colValues, authorId);
-                
-                destination = DESTINATION_AUTHORLIST; 
-                
-                getAuthorList(authorList,authorService, request); 
+
+                destination = DESTINATION_AUTHORLIST;
+
+                getAuthorList(authorList, authorService, request);
             }
 
         } catch (Exception e) {
@@ -140,13 +142,25 @@ public class AuthorController extends HttpServlet {
         view.forward(request, response);
 
     }
-    
+
     private void getAuthorList(List<Author> authorList,
             AuthorService authorService, HttpServletRequest request)
-            throws SQLException, ClassNotFoundException{
-        
+            throws SQLException, ClassNotFoundException {
+
         authorList = authorService.getAuthorList();
-        request.setAttribute("authorList", authorList);  
+        request.setAttribute("authorList", authorList);
+    }
+
+    @Override
+    public void init() throws ServletException {
+        driverClass = getServletContext()
+                .getInitParameter("db.driver.class");
+        url = getServletContext()
+                .getInitParameter("db.url");
+        username = getServletContext()
+                .getInitParameter("db.username");
+        password = getServletContext()
+                .getInitParameter("db.password");
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
