@@ -33,7 +33,7 @@
                         <table class="table-striped table-hover" style="width:100%;">
                             <c:forEach var="a" items="${authorList}">
                                 <tr>                    
-                                    <td>${a.authorName}</a></td>
+                                    <td>${a.authorName}</td>
                                     <td><fmt:formatDate pattern = "yyyy-MM-dd" value = "${a.dateAdded}" /></td>
                                     <td><input type="button" class="btn btn-info text-center" value="Edit" 
                                                onclick="location.href = 'authorController?action=edit&id=${a.authorId}'"</td>

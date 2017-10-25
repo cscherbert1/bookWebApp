@@ -51,6 +51,7 @@ public class Author {
         this.dateAdded = dateAdded;
     }
 
+    
     @Override
     public int hashCode() {
         int hash = 7;
