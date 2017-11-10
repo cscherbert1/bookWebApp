@@ -24,7 +24,8 @@
                 <div class="col-sm-8">
                     <h1>Something Went Wrong!</h1>
 
-                    <p>${errorMessage}</p>
+                    <p> Error: ${errorMessage}</p>
+                    <p><c:out value="${errorMessage}" /></p>
 
                     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
                     <script
