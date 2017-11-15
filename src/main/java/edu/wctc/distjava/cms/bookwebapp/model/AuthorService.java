@@ -103,7 +103,7 @@ public class AuthorService implements Serializable {
         //logic
         //return authorDao.updateAuthorById(colNames, colValues, pkValue);
         
-        Date dateAdded = new Date();
+//        Date dateAdded = new Date();
 //        String jpql = "UPDATE Author a SET a.authorName = '" + authorName +
 //                "', a.dateAdded = '" + dateAdded + "'WHERE a.authorId = '" + id + "'";
 //        Query q = getEm().createQuery(jpql);
@@ -111,7 +111,7 @@ public class AuthorService implements Serializable {
         
         Author tempAuth = findOneAuthorById(pkValue);
         tempAuth.setAuthorName(authorName);
-        tempAuth.setDateAdded(dateAdded);
+//        tempAuth.setDateAdded(dateAdded);
         
         getEm().merge(tempAuth);
                  
