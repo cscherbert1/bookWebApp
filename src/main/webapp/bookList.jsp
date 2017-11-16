@@ -1,6 +1,6 @@
 <%-- 
-    Document   : authorList
-    Created on : Sep 19, 2017, 8:35:53 PM
+    Document   : bookList
+    Created on : Nov 15, 2017, 7:56:58 PM
     Author     : cscherbert1
 --%>
 
@@ -13,38 +13,42 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
         <!--Bootstrap minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
               integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
               crossorigin="anonymous">
-
-        <title>Author List</title>
+        <title>Book List</title>
     </head>
     <body>
         <div class="conatiner-fluid">
             <div class="row">
                 <div class="col-sm-8 col-sm-offset-2">
-                    
-                    <h1>Author List</h1>       
+
+                    <h1>Book List</h1>       
 
                     <div class="table-responsive">
                         <table class="table-striped table-hover" style="width:100%;">
-                            <c:forEach var="a" items="${authorList}">
+                            <tr>
+                                <th>Title</th>
+                                <th>ISBN</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            <c:forEach var="b" items="${bookList}">
                                 <tr>                    
-                                    <td>${a.authorName}</td>
-                                    <td><fmt:formatDate pattern = "yyyy-MM-dd" value = "${a.dateAdded}" /></td>
+                                    <td>${b.title}</td>
+                                    <td>${b.isbn}</td>
                                     <td><input type="button" class="btn btn-info text-center" value="Edit" 
-                                               onclick="location.href = 'authorController?action=edit&id=${a.authorId}'"</td>
+                                               onclick="location.href = 'bookController?action=edit&bookId=${b.bookId}'"</td>
                                     <td><input type="button" class="btn btn-danger text-center" value="Delete" 
-                                               onclick="location.href = 'authorController?action=delete&id=${a.authorId}'"</td>
+                                               onclick="location.href = 'authorController?action=delete&bookId=${b.bookId}'"</td>
                                 </tr>                
                             </c:forEach>
                         </table>
                     </div>
 
                     <br>
-                    <input type="button" class="btn btn-primary" value="Add" onclick="location.href = 'authorController?action=add'">
+                    <input type="button" class="btn btn-primary" value="Add" onclick="location.href = 'bookController?action=add'">
 
 
                     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -60,6 +64,5 @@
             </div>
 
         </div>
-
     </body>
 </html>

@@ -2,6 +2,7 @@ package edu.wctc.distjava.cms.bookwebapp.controller;
 
 import edu.wctc.distjava.cms.bookwebapp.model.Author;
 import edu.wctc.distjava.cms.bookwebapp.model.AuthorService;
+import edu.wctc.distjava.cms.bookwebapp.model.AuthorService_Old;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -101,11 +102,11 @@ public class AuthorController extends HttpServlet {
 
             } else if (action.equalsIgnoreCase(EDIT_ACTION)) {
 
-                String authorId = request.getParameter(AUTHOR_ID);
+                int authorId = Integer.parseInt(request.getParameter(AUTHOR_ID));
 
                 destination = DESTINATION_EDIT_AUTHOR;
 
-                Author eAuthor = authorService.findOneAuthorById(authorId);
+                Author eAuthor = authorService.findById(authorId);
                 request.setAttribute("eAuthor", eAuthor);
 
             } else if (action.equalsIgnoreCase(EDIT_AUTHOR_ACTION)) {
@@ -144,7 +145,7 @@ public class AuthorController extends HttpServlet {
             AuthorService authorService, HttpServletRequest request)
             throws SQLException, ClassNotFoundException, Exception {
 
-        authorList = authorService.getAuthorList();
+        authorList = authorService.findAll();
         request.setAttribute("authorList", authorList);
     }
 

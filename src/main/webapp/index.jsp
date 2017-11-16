@@ -27,7 +27,8 @@
                     
                     <h1>Select an Administrative Task</h1>
                     <ul>
-                        <li><a href="authorController?action=list">View all Authors</a></li>
+                        <li><a href="authorController?action=list">Manage Authors</a></li>
+                        <li><a href="bc?action=list">Manage Books</a></li>
                         <li>... More to come</li>
                     </ul>
 
