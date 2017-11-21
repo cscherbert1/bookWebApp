@@ -28,4 +28,27 @@ public class BookService extends AbstractFacade<Book> {
         super(Book.class);
     }
     
+        public void addOrBupdateBook(String bookId, String title, String isbn, String authorId){
+        Book book = null;
+        
+        if(bookId == null || bookId.isEmpty()){
+            //must be new record  
+            book = new Book();
+ 
+        } else {
+            //must be updated record
+            book = new Book(new Integer(bookId));
+        }
+        
+        book.setTitle(title); 
+        book.setIsbn(isbn);
+        //find author
+        Author author = getEm().find(Author.class, new Integer(authorId));
+        book.setAuthor(author);
+        //getEm().persist(book);
+        getEm().merge(book);
+
+
+    }
+    
 }

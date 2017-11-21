@@ -1,5 +1,6 @@
 package edu.wctc.distjava.cms.bookwebapp.controller;
 
+import edu.wctc.distjava.cms.bookwebapp.model.Author;
 import edu.wctc.distjava.cms.bookwebapp.model.Book;
 import edu.wctc.distjava.cms.bookwebapp.model.BookService;
 import java.io.IOException;
@@ -71,9 +72,12 @@ public class BookController extends HttpServlet {
 
                 getBookList(bookList, bookService, request);
 
+            } else if (action.equalsIgnoreCase(DELETE_ACTION)){
+                String bookId = request.getParameter(BOOK_ID);
             }
             
         }catch (Exception e){
+            e.printStackTrace();
              destination = DESTINATION_ERROR;
             request.setAttribute("errorMessage", e.getMessage());
         }

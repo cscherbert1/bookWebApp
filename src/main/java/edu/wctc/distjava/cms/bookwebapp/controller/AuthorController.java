@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -40,7 +41,7 @@ public class AuthorController extends HttpServlet {
     public static final String DESTINATION_EDIT_AUTHOR = "/editAuthor.jsp";
     public static final String DESTINATION_ERROR = "/error.jsp";
     public static final String DESTINATION_HOME = "/index.jsp";
-    
+
     @EJB
     private AuthorService authorService;
 
@@ -61,12 +62,11 @@ public class AuthorController extends HttpServlet {
 
         try {
 
-            
             List<Author> authorList = null;
             String action = request.getParameter(ACTION);
 
-            if(action.equalsIgnoreCase(DESTINATION_HOME)){
-                
+            if (action.equalsIgnoreCase(DESTINATION_HOME)) {
+
                 destination = DESTINATION_HOME;
             }
             if (action.equalsIgnoreCase(LIST_ACTION)) {
@@ -89,11 +89,9 @@ public class AuthorController extends HttpServlet {
 //                List<String> colNames = new Vector();
 //                colNames.add(AUTHOR_NAME);
 //                colNames.add(DATE_ADDED);
-
 //                List<Object> colValues = new Vector();
 //                colValues.add(request.getParameter(AUTHOR_NAME));
 //                colValues.add(new Date());
-
                 authorService.addAuthor(request.getParameter(AUTHOR_NAME));
 
                 destination = DESTINATION_AUTHORLIST;
@@ -102,11 +100,10 @@ public class AuthorController extends HttpServlet {
 
             } else if (action.equalsIgnoreCase(EDIT_ACTION)) {
 
-                int authorId = Integer.parseInt(request.getParameter(AUTHOR_ID));
-
+                //int authorId = Integer.parseInt(request.getParameter(AUTHOR_ID));
                 destination = DESTINATION_EDIT_AUTHOR;
 
-                Author eAuthor = authorService.findById(authorId);
+                Author eAuthor = authorService.findById(new Integer(request.getParameter(AUTHOR_ID)));
                 request.setAttribute("eAuthor", eAuthor);
 
             } else if (action.equalsIgnoreCase(EDIT_AUTHOR_ACTION)) {
@@ -120,7 +117,6 @@ public class AuthorController extends HttpServlet {
 //                colValues.add(new Date());
 //
 //                int authorId = Integer.parseInt(request.getParameter("author_id"));
-
                 authorService.updateAuthor(request.getParameter(AUTHOR_NAME), request.getParameter("author_id"));
 
                 destination = DESTINATION_AUTHORLIST;
@@ -128,7 +124,15 @@ public class AuthorController extends HttpServlet {
                 getAuthorList(authorList, authorService, request);
             }
 
+        } catch (EJBException ejbe) {
+//            e.printStackTrace();
+            destination = DESTINATION_ERROR;
+//            destination = "/authorList.jsp";
+            System.out.println(ejbe.getMessage());
+            request.setAttribute("errorMessage", "Sorry there has been a server, please contract your administrator.  Error Code: ejbe");
+
         } catch (Exception e) {
+//            e.printStackTrace();
             destination = DESTINATION_ERROR;
 //            destination = "/authorList.jsp";
             System.out.println(e.getMessage());

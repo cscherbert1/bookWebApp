@@ -31,6 +31,7 @@
                             <tr>
                                 <th>Title</th>
                                 <th>ISBN</th>
+                                <th>Author</th>
                                 <th></th>
                                 <th></th>
                             </tr>
@@ -38,6 +39,7 @@
                                 <tr>                    
                                     <td>${b.title}</td>
                                     <td>${b.isbn}</td>
+                                    <td>${b.author.authorName}</td>
                                     <td><input type="button" class="btn btn-info text-center" value="Edit" 
                                                onclick="location.href = 'bookController?action=edit&bookId=${b.bookId}'"</td>
                                     <td><input type="button" class="btn btn-danger text-center" value="Delete" 
