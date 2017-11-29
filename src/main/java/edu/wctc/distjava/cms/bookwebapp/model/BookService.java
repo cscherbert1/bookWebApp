@@ -37,7 +37,7 @@ public class BookService extends AbstractFacade<Book> {
         }
         Integer value = Integer.parseInt(id);
         int recordsDeleted = 0;
-        String jpql = "DELTE FROM Book b WHERE b.bookId = :id";
+        String jpql = "DELETE FROM Book b WHERE b.bookId = :id";
         Query q = getEm().createQuery(jpql);
         q.setParameter("id", value);
         recordsDeleted = q.executeUpdate();

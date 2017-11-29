@@ -41,16 +41,16 @@
                                     <td>${b.isbn}</td>
                                     <td>${b.author.authorName}</td>
                                     <td><input type="button" class="btn btn-info text-center" value="Edit" 
-                                               onclick="location.href = 'bookController?action=edit&bookId=${b.bookId}'"</td>
+                                               onclick="location.href = 'bc?action=edit&bookId=${b.bookId}'"</td>
                                     <td><input type="button" class="btn btn-danger text-center" value="Delete" 
-                                               onclick="location.href = 'authorController?action=delete&bookId=${b.bookId}'"</td>
+                                               onclick="location.href = 'bc?action=delete&bookId=${b.bookId}'"</td>
                                 </tr>                
                             </c:forEach>
                         </table>
                     </div>
 
                     <br>
-                    <input type="button" class="btn btn-primary" value="Add" onclick="location.href = 'bookController?action=add'">
+                    <input type="button" class="btn btn-primary" value="Add" onclick="location.href = 'bc?action=add'">
 
 
                     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

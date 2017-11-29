@@ -1,6 +1,7 @@
 package edu.wctc.distjava.cms.bookwebapp.controller;
 
 import edu.wctc.distjava.cms.bookwebapp.model.Author;
+import edu.wctc.distjava.cms.bookwebapp.model.AuthorService;
 import edu.wctc.distjava.cms.bookwebapp.model.Book;
 import edu.wctc.distjava.cms.bookwebapp.model.BookService;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.List;
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,6 +23,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "BookController", urlPatterns = {"/bc"})
 public class BookController extends HttpServlet {
+
+    @EJB
+    private AuthorService authorService;
     
     public static final String ACTION = "action";
     public static final String BOOK_ID = "bookId";
@@ -33,9 +38,12 @@ public class BookController extends HttpServlet {
     
     public static final String TITLE = "title";
     public static final String ISBN = "isbn";
+    public static final String AUTHOR = "author";
     
     public static final String DESTINATION_HOME = "/index.jsp";
     public static final String DESTINATION_BOOKLIST = "/bookList.jsp";
+    public static final String DESTINATION_ADD_BOOK = "/addBook.jsp";
+    public static final String DESTINATION_EDIT_BOOK = "/editBook.jsp";
     public static final String DESTINATION_ERROR = "/error.jsp";
     
     @EJB
@@ -67,16 +75,69 @@ public class BookController extends HttpServlet {
                 destination = DESTINATION_HOME;
             }
             
-            //List
+            //Others
             if (action.equalsIgnoreCase(LIST_ACTION)) {
 
                 getBookList(bookList, bookService, request);
 
             } else if (action.equalsIgnoreCase(DELETE_ACTION)){
+                
                 String bookId = request.getParameter(BOOK_ID);
+                bookService.removeBookById(bookId);                
+                getBookList(bookList, bookService, request);
+                
+            } else if (action.equalsIgnoreCase(ADD_ACTION)){
+                
+                List<Author> authorList = authorService.findAll();
+                request.setAttribute("authorList", authorList);
+                destination = DESTINATION_ADD_BOOK;
+                
+            } else if (action.equalsIgnoreCase(SUBMIT_BOOK_ACTION)){
+                
+                String title = request.getParameter(TITLE);
+                String isbn = request.getParameter(ISBN);
+                String authorId = request.getParameter(AUTHOR);
+                bookService.addBook(title, isbn, authorId);
+                
+                destination = DESTINATION_BOOKLIST;
+                
+                getBookList(bookList, bookService, request);
+                
+            } else if (action.equalsIgnoreCase(EDIT_ACTION)){
+                              
+                destination = DESTINATION_EDIT_BOOK;
+                
+                String bookId = request.getParameter(BOOK_ID);
+                Book eBook = bookService.findById(new Integer(bookId));
+                request.setAttribute("eBook", eBook);
+                
+                List<Author> authorList = authorService.findAll();
+                request.setAttribute("editAuthorList", authorList);
+                
+                
+            } else if(action.equalsIgnoreCase(EDIT_BOOK_ACTION)){
+                
+                destination = DESTINATION_BOOKLIST;
+                
+                //get values from the form
+                String id = request.getParameter(BOOK_ID);
+                String title = request.getParameter(TITLE);
+                String isbn = request.getParameter(ISBN);
+                String authorId = request.getParameter(AUTHOR); //only the author Id is passed in
+                
+                bookService.updateBook(id, title, isbn, authorId);//pass in the values from the form
+                
+                 getBookList(bookList, bookService, request);
             }
             
-        }catch (Exception e){
+        } catch (EJBException ejbe) {
+//            e.printStackTrace();
+            destination = DESTINATION_ERROR;
+//            destination = "/authorList.jsp";
+            System.out.println(ejbe.getMessage());
+            request.setAttribute("errorMessage", "Sorry there has been a server, please contract your administrator.  Error Code: ejbe");
+
+        } catch (Exception e){
             e.printStackTrace();
              destination = DESTINATION_ERROR;
             request.setAttribute("errorMessage", e.getMessage());
