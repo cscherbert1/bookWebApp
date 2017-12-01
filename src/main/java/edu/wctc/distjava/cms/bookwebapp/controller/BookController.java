@@ -11,11 +11,14 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  *
@@ -24,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "BookController", urlPatterns = {"/bc"})
 public class BookController extends HttpServlet {
 
-    @EJB
+    
     private AuthorService authorService;
     
     public static final String ACTION = "action";
@@ -46,7 +49,7 @@ public class BookController extends HttpServlet {
     public static final String DESTINATION_EDIT_BOOK = "/editBook.jsp";
     public static final String DESTINATION_ERROR = "/error.jsp";
     
-    @EJB
+
     private BookService bookService;
 
     /**
@@ -108,7 +111,7 @@ public class BookController extends HttpServlet {
                 destination = DESTINATION_EDIT_BOOK;
                 
                 String bookId = request.getParameter(BOOK_ID);
-                Book eBook = bookService.findById(new Integer(bookId));
+                Book eBook = bookService.findById(bookId);
                 request.setAttribute("eBook", eBook);
                 
                 List<Author> authorList = authorService.findAll();
@@ -155,7 +158,23 @@ public class BookController extends HttpServlet {
         bookList = bookService.findAll();
         request.setAttribute("bookList", bookList);
     }
+    
+    @Override //one time initialization routine
+    public void init() throws ServletException {
+        //ask Spring for the Object to inject
+        //ServletContext has an application wide scope. Lives as long as the app is running. 
+        //one function is to store app-scope data, but also has access to other server features
+        ServletContext sctx = getServletContext();
 
+        //this gets our Spring managed objects (beans)
+        //this line tells the server about Spring and them to get along
+        WebApplicationContext ctx
+                = WebApplicationContextUtils.getWebApplicationContext(sctx);
+        authorService = (AuthorService) ctx.getBean("authorService");
+        bookService = (BookService) ctx.getBean("bookService");
+
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

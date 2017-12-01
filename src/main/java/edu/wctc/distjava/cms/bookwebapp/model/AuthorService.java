@@ -5,34 +5,62 @@
  */
 package edu.wctc.distjava.cms.bookwebapp.model;
 
+import edu.wctc.distjava.cms.bookwebapp.repository.AuthorRepository;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author cscherbert1
  * 
  */
-@Stateless
-public class AuthorService extends AbstractFacade<Author> {
+@Service
+public class AuthorService{
 
-    @PersistenceContext(unitName = "book_PU")
-    private EntityManager em;
-
-    @Override
-    protected EntityManager getEm() {
-        return em;
-    }
-
+    @Autowired
+    private AuthorRepository authorRepo;
+    
     public AuthorService() {
-        super(Author.class);
+        
     }
     
-    public int removeAuthorById(String id) 
+    //eg method using Spring repositiory to do CRUD operations
+    public List<Author> findAll(){
+        return authorRepo.findAll();
+    }
+    
+    public Author findById(String id) throws DataAccessException{
+        Author author = authorRepo.findOne(Integer.parseInt(id));
+        return author;
+    }
+    
+    //save method 
+    public void addAuthor(String authorName){
+        Date date = new Date();
+        Author author = new Author();
+        author.setAuthorName(authorName);
+        author.setBookSet(new HashSet());
+        author.setDateAdded(date);
+        
+        /*
+        SaveAndFlush is for non-transactional methods. No rollback, etc. 
+        For transactions, use .save()
+        This syncs cache w/ DB right away. 
+        */
+        authorRepo.save(author); //adds and works for updates as well. Uses Merge from JPA
+
+    }
+    
+    public void removeAuthorById(String id) 
             throws SQLException, ClassNotFoundException, NumberFormatException{
         
         if(id == null || Integer.parseInt(id) <= 0){
@@ -40,25 +68,30 @@ public class AuthorService extends AbstractFacade<Author> {
         }
         
         Integer value = Integer.parseInt(id);
-        int recordsDeleted = 0;
-        String jpql = "DELETE FROM Author a WHERE a.authorId = :id";
-        Query q = getEm().createQuery(jpql);
-        q.setParameter("id", value);
-        recordsDeleted = q.executeUpdate();
+        authorRepo.delete(value);
+        
+//        String jpql = "DELETE FROM Author a WHERE a.authorId = :id";
+//        Query q = getEm().createQuery(jpql);
+//        q.setParameter("id", value);
+//        recordsDeleted = q.executeUpdate();      
 
-        return recordsDeleted;
     } 
     
-    public void updateAuthor(String authorName, String pkValue)
+    
+    public void updateAuthor(String id, String authorName)
             throws ClassNotFoundException, SQLException{
+        
+        Author author = findById(id);
+        author.setAuthorName(authorName);
+        authorRepo.save(author);
         
         //validation
         
         //Add for authorName and dateAdded
 
-        if (Integer.parseInt(pkValue) <= 0 || Integer.parseInt(pkValue) > Integer.MAX_VALUE)
-            throw new IllegalArgumentException("You must provide a valid Author Id to update any records.");
-        
+//        if (Integer.parseInt(pkValue) <= 0 || Integer.parseInt(pkValue) > Integer.MAX_VALUE)
+//            throw new IllegalArgumentException("You must provide a valid Author Id to update any records.");
+//        
         //logic
         //return authorDao.updateAuthorById(colNames, colValues, pkValue);
         
@@ -67,30 +100,14 @@ public class AuthorService extends AbstractFacade<Author> {
 //                "', a.dateAdded = '" + dateAdded + "'WHERE a.authorId = '" + id + "'";
 //        Query q = getEm().createQuery(jpql);
 //        recordsUpdated = q.executeUpdate();   
-        int id = Integer.parseInt(pkValue);
-        Author tempAuth = findById(id);
-        tempAuth.setAuthorName(authorName);
-//        tempAuth.setDateAdded(dateAdded);
-        
-        getEm().merge(tempAuth);
+//        int id = Integer.parseInt(pkValue);
+//        Author tempAuth = findById(id);
+//        tempAuth.setAuthorName(authorName);
+////        tempAuth.setDateAdded(dateAdded);
+//        
+//        getEm().merge(tempAuth);
                  
     }
-    
-    public void addAuthor(String authorName)
-            throws ClassNotFoundException, SQLException{
-        
-        //validation
 
-        
-        //logic
-        //return authorDao.addAuthor(colNames, colValues);
-        
-        Author author = new Author();
-        author.setAuthorName(authorName);
-        author.setDateAdded(new Date());
-        
-        getEm().merge(author);
-        
-    }
     
 }

@@ -2,7 +2,6 @@ package edu.wctc.distjava.cms.bookwebapp.controller;
 
 import edu.wctc.distjava.cms.bookwebapp.model.Author;
 import edu.wctc.distjava.cms.bookwebapp.model.AuthorService;
-import edu.wctc.distjava.cms.bookwebapp.model.AuthorService_Old;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -12,11 +11,14 @@ import java.util.Vector;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  *
@@ -42,7 +44,8 @@ public class AuthorController extends HttpServlet {
     public static final String DESTINATION_ERROR = "/error.jsp";
     public static final String DESTINATION_HOME = "/index.jsp";
 
-    @EJB
+    //auto created by Spring. Need to ask it for a copy
+    
     private AuthorService authorService;
 
     /**
@@ -103,7 +106,7 @@ public class AuthorController extends HttpServlet {
                 //int authorId = Integer.parseInt(request.getParameter(AUTHOR_ID));
                 destination = DESTINATION_EDIT_AUTHOR;
 
-                Author eAuthor = authorService.findById(new Integer(request.getParameter(AUTHOR_ID)));
+                Author eAuthor = authorService.findById(request.getParameter(AUTHOR_ID));
                 request.setAttribute("eAuthor", eAuthor);
 
             } else if (action.equalsIgnoreCase(EDIT_AUTHOR_ACTION)) {
@@ -117,7 +120,7 @@ public class AuthorController extends HttpServlet {
 //                colValues.add(new Date());
 //
 //                int authorId = Integer.parseInt(request.getParameter("author_id"));
-                authorService.updateAuthor(request.getParameter(AUTHOR_NAME), request.getParameter("author_id"));
+                authorService.updateAuthor(request.getParameter("author_id"), request.getParameter(AUTHOR_NAME));
 
                 destination = DESTINATION_AUTHORLIST;
 
@@ -153,8 +156,18 @@ public class AuthorController extends HttpServlet {
         request.setAttribute("authorList", authorList);
     }
 
-    @Override
+    @Override //one time initialization routine
     public void init() throws ServletException {
+        //ask Spring for the Object to inject
+        //ServletContext has an application wide scope. Lives as long as the app is running. 
+        //one function is to store app-scope data, but also has access to other server features
+        ServletContext sctx = getServletContext();
+        
+        //this gets our Spring managed objects (beans)
+        //this line tells the server about Spring and them to get along
+        WebApplicationContext ctx = 
+                WebApplicationContextUtils.getWebApplicationContext(sctx);
+        authorService = (AuthorService)ctx.getBean("authorService");
 
     }
 
